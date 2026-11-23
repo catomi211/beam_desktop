@@ -61,6 +61,12 @@
 - What I asked: Expand README.md with a GitHub-readable explanation of the app's calculations and equations.
   What changed: Added units and sign conventions, reaction equations, shear and moment formulas, deflection integration and boundary conditions, bending stress, deflection checks, and the calculation workflow.
   Whether it worked: Yes; the README now contains the expanded calculation documentation.
+- What I asked: Replace README dollar-sign and MathJax-style equations with GitHub-readable plain-text math language.
+  What changed: Rewrote calculation equations as clearly labeled plain-text formula blocks and added unit/sign-convention tables.
+  Whether it worked: The README format update is complete; no code changed.
+- What I asked: Commit and push the GitHub-readable README equation formatting.
+  What changed: Preparing to commit the README and prompt-log update, then push main to origin.
+  Whether it worked: Pending verification.
 - What I asked: Commit and push the expanded README calculation documentation.
   What changed: Preparing to commit the README and prompt-log update, then push main to origin.
   Whether it worked: Yes; commit 29ee1c9 was created and pushed to origin/main.

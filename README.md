@@ -1,6 +1,16 @@
 # Beam Designer
 
-Beam Designer is a Tkinter desktop app for preliminary beam analysis. It supports simply supported and cantilever beams, point and distributed loads, member properties, reaction/shear/moment/deflection calculations, pass/fail checks, saved beam designs, CSV result exports, and PDF calculation sheets.
+Beam Designer is a Tkinter desktop application for preliminary beam analysis. It supports:
+
+- Simply supported and cantilever beams.
+- Multiple point loads and uniformly distributed loads.
+- Upward and downward loads.
+- Steel W-shapes and lumber members.
+- Reactions, shear, moment, deflection, and bending-stress calculations.
+- Pass/fail checks.
+- Saved `.beam.json` designs.
+- CSV result exports.
+- Multi-page PDF calculation sheets.
 
 ## Calculations
 
@@ -8,265 +18,250 @@ Beam Designer uses linear-elastic Euler-Bernoulli beam theory for prismatic memb
 
 ### Units and sign convention
 
-- Geometry and load positions: feet.
-- Loads: kips or kips per foot.
-- Member modulus: ksi.
-- Moment of inertia: in⁴.
-- Section modulus: in³.
-- Reactions and shear: kips.
-- Moment: kip-ft.
-- Deflection: inches.
-- Downward loads are positive in the app's load-sign system. Upward loads are negative.
+| Quantity | Unit |
+|---|---|
+| Beam position and span | ft |
+| Point loads | kip |
+| Distributed loads | kip/ft |
+| Reactions and shear | kip |
+| Elastic modulus | ksi |
+| Moment of inertia | in^4 |
+| Section modulus | in^3 |
+| Moment | kip-ft |
+| Deflection | in |
+
+Downward loads are positive in the app's signed load system. Upward loads are negative.
 
 ### Member properties
 
-The app provides built-in steel W-shape and lumber selections. Each member supplies:
+Each member provides:
 
-$$
-E = \text{elastic modulus}
-$$
+```text
+E  = elastic modulus
+I  = moment of inertia
+S  = section modulus
+Fb = allowable bending stress
+```
 
-$$
-I = \text{moment of inertia}
-$$
+Example: W12 x 26 steel:
 
-$$
-S = \text{section modulus}
-$$
-
-$$
-F_b = \text{allowable bending stress}
-$$
-
-For example, the W12×26 steel section uses $E = 29{,}000$ ksi, $I = 204$ in⁴, $S = 33.4$ in³, and $F_b = 24$ ksi.
+```text
+E  = 29,000 ksi
+I  = 204 in^4
+S  = 33.4 in^3
+Fb = 24 ksi
+```
 
 ### Loads
 
-For a point load $P$ at position $a$, the signed load is:
+For a point load P at position a:
 
-$$
-P_{\text{signed}}
-=
-\begin{cases}
-P, & \text{downward}\\
--P, & \text{upward}
-\end{cases}
-$$
+```text
+P_signed =  P for a downward load
+P_signed = -P for an upward load
+```
 
-For a uniformly distributed load with magnitude $w$ from $a$ to $b$, the total load and centroidal position are:
+For a uniformly distributed load w from position a to position b:
 
-$$
-W = w_{\text{signed}}(b-a)
-$$
+```text
+W = w_signed * (b - a)
 
-$$
-x_W = \frac{a+b}{2}
-$$
+xW = (a + b) / 2
+```
 
-The optional self-weight is treated as an assumed downward uniform load spanning the full beam. Its assumed value is member-specific and is displayed separately from the verified section properties.
+The optional self-weight is an assumed downward uniform load spanning the full beam. The assumed weight is member-specific and is shown separately from the member section properties.
 
 ### Reactions
 
-For a simply supported beam, the code sums all loads and moments about the left support:
+#### Simply supported beam
 
-$$
-\Sigma F_y = R_L + R_R + \Sigma P_{\text{signed}} + \Sigma W = 0
-$$
+The app sums all loads and moments about the left support.
 
-With downward and upward loads represented using signed values:
+```text
+Moment about left support =
+    sum(P_signed * a) + sum(W * xW)
 
-$$
-R_R = \frac{\Sigma \left(P_{\text{signed}}a\right)
-+ \Sigma \left(Wx_W\right)}{L}
-$$
+Right reaction:
+    RR = Moment about left support / span
 
-$$
-R_L = \Sigma P_{\text{signed}}+\Sigma W-R_R
-$$
+Left reaction:
+    RL = sum(P_signed) + sum(W) - RR
+```
 
-For a cantilever, the fixed support reaction is:
+The vertical equilibrium equation is:
 
-$$
-R_{\text{fixed}}
-=
-\Sigma P_{\text{signed}}+\Sigma W
-$$
+```text
+RL + RR + sum(P_signed) + sum(W) = 0
+```
 
-and the fixed-end moment is:
+#### Cantilever beam
 
-$$
-M_{\text{fixed}}
-=
--\left[
-\Sigma \left(P_{\text{signed}}a\right)
-+
-\Sigma \left(Wx_W\right)
-\right]
-$$
+```text
+Fixed-end vertical reaction:
+    Rfixed = sum(P_signed) + sum(W)
 
-### Shear and moment
+Fixed-end moment:
+    Mfixed = -[sum(P_signed * a) + sum(W * xW)]
+```
 
-The app evaluates shear and moment along a numerical beam grid that includes the beam ends and all point-load, distributed-load start, and distributed-load end locations.
+### Shear
+
+For a simply supported beam, shear at position x is:
+
+```text
+V(x) = RL
+       - sum(P_signed[i]) for every point load located at or left of x
+       - sum[w_signed[j] * covered_length[j]]
+
+covered_length[j] =
+    max(0, min(x, b[j]) - a[j])
+```
+
+At a point load, shear jumps by the signed load magnitude. The moment remains continuous at that location.
+
+### Moment
 
 For a simply supported beam:
 
-$$
-V(x)
-=
-R_L
--\sum_{a_i \leq x}P_{\text{signed},i}
--\sum w_{\text{signed},j}
-\left[\min(x,b_j)-a_j\right]_+
-$$
+```text
+M(x) = RL * x
+       - sum(P_signed[i] * (x - a[i]))
+         for every point load located at or left of x
 
-where
+       - sum[
+            w_signed[j] * covered_length[j]
+            * (x - (a[j] + covered_end[j]) / 2)
+         ]
+```
 
-$$
-\left[z\right]_+ =
-\begin{cases}
-z, & z>0\\
-0, & z\leq 0
-\end{cases}
-$$
+where:
 
-The moment at position $x$ is:
+```text
+covered_end[j] = min(x, b[j])
+covered_length[j] = max(0, covered_end[j] - a[j])
+```
 
-$$
-M(x)
-=
-R_Lx
--\sum_{a_i \leq x}
-P_{\text{signed},i}(x-a_i)
--\sum w_{\text{signed},j}
-\frac{\left[\min(x,b_j)-a_j\right]_+^2}{2}
-$$
+Within a distributed-load segment:
 
-Point loads produce an instantaneous shear jump but leave moment continuous. Distributed-load segments change shear linearly and moment quadratically.
+```text
+Shear varies linearly.
+Moment varies quadratically.
+```
+
+The app reports the maximum positive shear, maximum negative shear, maximum positive moment, maximum negative moment, and governing absolute moment.
 
 ### Deflection
 
-The app evaluates moment in kip-ft and converts it to inch-kips before calculating curvature:
+The app uses linear-elastic Euler-Bernoulli beam theory.
 
-$$
-\kappa(x)
-=
--\frac{M(x)\,(12)}{EI}
-$$
+Moment in kip-ft is converted to inch-kips:
 
-Here, $EI$ is in kip-in² because $E$ is in ksi and $I$ is in in⁴.
+```text
+Moment_in_kip_in = M(x) * 12
+```
 
-Starting with zero rotation and deflection at the cantilever fixed end, or an adjusted linear rigid-body rotation for a simply supported beam, the code numerically integrates:
+Curvature is:
 
-$$
-\theta(x)
-=
-\int_0^x \kappa(s)\,ds
-$$
+```text
+kappa(x) = -Moment_in_kip_in / (E * I)
+```
 
-$$
-y(x)
-=
-\int_0^x \theta(s)\,ds
-$$
+The curvature is numerically integrated once for rotation and again for deflection:
 
-The simply supported result is shifted so that deflection is zero at both beam ends:
+```text
+theta(x) = integral from 0 to x of kappa(s) ds
 
-$$
-y_{\text{corrected}}(x)
-=
-y(x)-y(L)\frac{x}{L}
-$$
+y(x) = integral from 0 to x of theta(s) ds
+```
 
-For a cantilever:
+The integration uses trapezoidal accumulation on a grid containing:
 
-$$
-y(0)=0,\qquad \theta(0)=0
-$$
+- 0 ft.
+- The beam span.
+- Every point-load position.
+- Every distributed-load start and end position.
+- Additional numerical grid points.
 
-For a simply supported beam:
+#### Simply supported boundary conditions
 
-$$
-y(0)=0,\qquad y(L)=0
-$$
+```text
+y(0) = 0
+y(L) = 0
+```
 
-The numerical integrations use trapezoidal accumulation on a grid containing support points, point-load locations, and uniform-load boundaries. The governing deflection is:
+The app applies a rigid-body rotation correction to enforce zero deflection at both supports:
 
-$$
-\left|y\right|_{\max}
-=
-\max_x \left|y(x)\right|
-$$
+```text
+y_corrected(x) = y(x) - y(L) * x / L
+```
+
+#### Cantilever boundary conditions
+
+```text
+y(0) = 0
+theta(0) = 0
+```
+
+The maximum absolute deflection is:
+
+```text
+y_max_absolute = max |y(x)|
+```
 
 ### Bending stress
 
 The governing moment is converted to kip-in:
 
-$$
-M_{\max,\text{in}}
-=
-\left|M_{\max}\right|_{\text{kip-ft}}(12)
-$$
+```text
+Mgoverning_kip_in = |Mgoverning_kip_ft| * 12
+```
 
-Bending stress is:
+The bending stress is:
 
-$$
-f_b
-=
-\frac{M_{\max,\text{in}}}{S}
-$$
+```text
+fb = Mgoverning_kip_in / S
+```
 
 The bending check is:
 
-$$
-f_b \leq F_b
-\quad\Rightarrow\quad
-\text{PASS}
-$$
-
-$$
-f_b > F_b
-\quad\Rightarrow\quad
-\text{FAIL}
-$$
+```text
+fb <= allowable bending stress  -> PASS
+fb >  allowable bending stress  -> FAIL
+```
 
 ### Deflection check
 
 The default allowable deflection is:
 
-$$
-y_{\text{allow}}
-=
-\frac{L}{360}
-$$
+```text
+y_allowable = L_in / 360
 
-where $L$ is converted from feet to inches:
+L_in = span in feet * 12
+```
 
-$$
-L_{\text{in}} = L_{\text{ft}}(12)
-$$
+A user-entered deflection limit replaces the default `L / 360` limit.
 
-A user-entered deflection limit replaces \(L/360\). The result passes when:
-
-$$
-\left|y\right|_{\max}\leq y_{\text{allow}}
-$$
+```text
+|y_max_absolute| <= y_allowable  -> PASS
+|y_max_absolute| >  y_allowable  -> FAIL
+```
 
 ## Calculation workflow
 
-1. The Tkinter UI reads support type, span, loads, member selection, cut locations, and self-weight state.
+1. The UI collects support type, span, loads, member selection, cut locations, and self-weight state.
 2. Input validation rejects invalid spans, load ranges, magnitudes, members, cuts, and deflection limits.
-3. Invalid designs clear or hide results instead of showing stale values.
-4. Loads are normalized to signed kip values.
-5. Support reactions are calculated from vertical equilibrium.
-6. Shear and moment are evaluated across the numerical beam grid.
-7. Moment is converted to curvature and numerically integrated for rotation and deflection.
-8. Governing moments, deflections, locations, bending stress, and deflection checks are calculated.
-9. Tkinter displays the metrics and pass/fail cards while Matplotlib redraws the beam and diagrams.
+3. Invalid designs clear or hide results instead of displaying stale values.
+4. Loads are converted to signed kip values.
+5. Reactions are calculated from vertical equilibrium.
+6. Shear and moment are evaluated across the beam grid.
+7. Moment is converted to curvature and integrated for rotation and deflection.
+8. Governing values, bending stress, and pass/fail checks are calculated.
+9. Tkinter displays metrics and status cards while Matplotlib redraws the beam and diagrams.
 10. CSV and PDF exports use the latest valid calculation results.
 
 ## Install
 
-Install the required Python packages:
+Install the required packages:
 
 ```text
 pip install -r requirements.txt
