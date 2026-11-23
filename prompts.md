@@ -51,7 +51,7 @@
   Whether it worked: Yes; 18 total tests passed, 8 beam-validation tests passed, and all six direct spec cases matched their expected reactions, moments, shear values, and deflections.
 - What I asked: Commit the validation rerun record.
   What changed: Preparing to commit the prompt-log validation entry.
-  Whether it worked: Pending verification.
+  Whether it worked: Yes; commit 3ba1f2b created successfully.
 
 After-the-fact entries: The following prompts were added after the requests occurred because they had not previously been recorded.
 - What I asked: Create a top-level AGENTS.md containing the required prompts.md instruction.
