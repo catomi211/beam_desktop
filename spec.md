@@ -277,6 +277,80 @@ Export the calculated beam-result table for use in Excel or another spreadsheet 
 - Confirm that invalid inputs do not allow a CSV export.
 - Confirm that canceling the save dialog does not modify the beam or results.
 
+## Calculation sheet PDF export
+
+### Purpose
+Produce a hand-in-ready PDF calculation sheet that presents the beam inputs, diagrams, calculations, and design checks in a professional document.
+
+### Export control
+- Add a clearly labeled "Calculation sheet" button to the application.
+- The button must open a native file-save dialog.
+- The exported file must use the `.pdf` extension.
+- Canceling the save dialog must leave the current beam and results unchanged.
+- The export action must be disabled or hidden while beam inputs are invalid.
+
+### Document layout
+- Use a clean, print-ready portrait or landscape layout.
+- Use standard 0.75-inch margins on every edge.
+- Both PDF pages must use the same 8.5-by-11-inch letter-size page.
+- Do not add page-number labels or page counters.
+- Do not include the disclaimer that the calculation is preliminary or not code-compliant.
+- The calculation sheet must contain exactly two pages:
+  - Page 1: beam inputs and assumptions.
+  - Page 2: beam sketch, shear diagram, moment diagram, deflection diagram, calculations, and checks.
+- Keep page text and images in separate regions so no content overlaps.
+- Include the app name and report title.
+- Include a report-generation timestamp.
+- Include a project or beam name when available.
+- List all user-entered inputs at the top of the sheet.
+- Present the diagrams and pass/fail checks in a readable sequence.
+- Fit the complete result sheet to standard letter-size PDF paper with readable margins.
+- Use black text and a light, professional accent style.
+
+### Inputs listed at the top
+- Support type.
+- Beam span in feet.
+- Selected member type and designation/size.
+- Member grade/species and section properties.
+- Elastic modulus and moment of inertia.
+- Section modulus and allowable bending stress.
+- Deflection limit in inches.
+- Beam self-weight assumption and whether it is included.
+- Every point load with magnitude, position, and direction.
+- Every uniformly distributed load with magnitude, start/end positions, and direction.
+- Section-comparison cut locations when that feature is included.
+
+### Calculations and diagrams
+- Include static-equilibrium reactions.
+- Include governing positive and negative shear values when applicable.
+- Include governing positive and negative moment values and the governing absolute moment.
+- Include governing moment location.
+- Include the maximum absolute deflection and location.
+- Include bending stress and the bending pass/fail check.
+- Include actual deflection, allowable deflection, and the deflection pass/fail check.
+- Include the beam/support/load sketch.
+- Include the shear diagram.
+- Include the moment diagram.
+- Include the deflection diagram.
+- Use consistent units and sign conventions on the calculation sheet.
+
+### PDF behavior
+- Export only the latest valid results.
+- Export no interactive controls.
+- Keep the PDF independent of the application.
+- Preserve readable text and non-clipped diagrams.
+- Name the file using the beam designation or an entered project name when possible.
+- Show a clear success or error message after export.
+
+### Validation and tests
+- Export a calculation sheet for a valid simply supported beam.
+- Export a calculation sheet for a valid cantilever beam.
+- Verify that inputs, reactions, diagrams, governing values, and pass/fail checks appear.
+- Verify that units and sign conventions are stated consistently.
+- Verify that the PDF opens independently and prints cleanly on letter-size paper.
+- Confirm that invalid inputs do not create a calculation-sheet PDF.
+- Confirm that canceling the save dialog does not modify the beam or results.
+
 ## Out of scope
 - Continuous, overhanging, and indeterminate beams
 - Buckling, shear, torsion, and lateral-torsional stability

@@ -31,6 +31,21 @@
 - What I asked: Commit the CSV results-export implementation.
   What changed: Preparing to commit the CSV exporter, UI button, specification, tests, and prompt-log updates.
   Whether it worked: Yes; commit be65f92 created successfully with the CSV export implementation.
+- What I asked: Add a calculation-sheet PDF feature to spec.md before implementation.
+  What changed: Added requirements for a Calculation sheet button, PDF save dialog, inputs, reactions, governing values, diagrams, pass/fail checks, print-ready layout, validation, and independent PDF behavior.
+  Whether it worked: The specification update was completed; application implementation has not started.
+- What I asked: Implement the Calculation sheet PDF feature and test all validation cases.
+  What changed: Added calculation_sheet.py, a Calculation sheet button and native PDF save dialog, print-ready Matplotlib PDF rendering with inputs, reactions, diagrams, governing values, checks, assumptions, success/error handling, invalid-state disabling, and PDF tests.
+  Whether it worked: Yes; 18 total tests passed, all 8 beam-validation tests passed, PDF syntax/creation checks passed, and Tkinter button validity-state smoke tests passed.
+- What I asked: Split the PDF into inputs and outputs pages and prevent overlapping text and images.
+  What changed: Reworked calculation_sheet.py into exactly two portrait pages using PdfPages, moved inputs to page 1, separated the beam and diagrams from calculations/checks on page 2, updated the spec and PDF page-count tests.
+  Whether it worked: Yes; 18 total tests passed, 10 PDF/beam-validation tests passed, the PDF contains exactly two pages, and all six beam validation groups matched.
+- What I asked: Add standard PDF margins, align content, equalize page sizes, remove page labels, and remove the preliminary-review disclaimer.
+  What changed: Set 0.75-inch margins and letter-size MediaBoxes for both pages, realigned all page regions, removed page-number text and the disclaimer, and added matching PDF/spec tests.
+  Whether it worked: Yes; 18 tests passed, 10 PDF/beam-validation tests passed, and both pages use identical letter-size MediaBoxes.
+- What I asked: Commit the PDF margin and layout changes.
+  What changed: Preparing to commit the calculation-sheet implementation, spec updates, tests, and prompt log.
+  Whether it worked: Pending verification.
 
 After-the-fact entries: The following prompts were added after the requests occurred because they had not previously been recorded.
 - What I asked: Create a top-level AGENTS.md containing the required prompts.md instruction.

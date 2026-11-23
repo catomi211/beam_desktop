@@ -8,6 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import calculations
 import plotting
+from calculation_sheet import CalculationSheetError, export_calculation_sheet
 from design_files import BeamFileError, load_beam, save_beam
 from csv_export import CSVExportError, export_results
 from member_data import designations, get_member
@@ -96,6 +97,8 @@ class AppView:
         self.header_status.pack(side="right", padx=(8, 0))
         self.export_button = ttk.Button(header, text="Export results", command=self.export_results)
         self.export_button.pack(side="right")
+        self.calculation_sheet_button = ttk.Button(header, text="Calculation sheet", command=self.export_calculation_sheet)
+        self.calculation_sheet_button.pack(side="right", padx=(0, 6))
 
         split = ttk.PanedWindow(self.root, orient="horizontal")
         split.pack(fill="both", expand=True, padx=14, pady=10)
@@ -361,6 +364,34 @@ class AppView:
             return
         messagebox.showinfo("Results exported", "Beam results exported successfully.", parent=self.root)
 
+    def export_calculation_sheet(self) -> None:
+        model = self._model()
+        if self.current_results is None:
+            messagebox.showerror(
+                "Cannot export calculation sheet",
+                "Current beam inputs are invalid.",
+                parent=self.root,
+            )
+            return
+        path = filedialog.asksaveasfilename(
+            parent=self.root,
+            title="Save calculation sheet",
+            defaultextension=".pdf",
+            filetypes=[("PDF document", "*.pdf"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+        try:
+            export_calculation_sheet(path, model, self.current_results)
+        except CalculationSheetError as exc:
+            messagebox.showerror("Calculation sheet failed", str(exc), parent=self.root)
+            return
+        messagebox.showinfo(
+            "Calculation sheet saved",
+            "Calculation sheet exported successfully.",
+            parent=self.root,
+        )
+
     def open_beam(self) -> None:
         path = filedialog.askopenfilename(
             parent=self.root,
@@ -451,6 +482,8 @@ class AppView:
         self.current_results = None
         if hasattr(self, "export_button"):
             self.export_button.configure(state="disabled")
+        if hasattr(self, "calculation_sheet_button"):
+            self.calculation_sheet_button.configure(state="disabled")
         for axis in self.figure.axes:
             axis.clear()
         self.figure_canvas.draw_idle()
@@ -477,6 +510,7 @@ class AppView:
         results = calculations.calculate(model, (cut1, cut2))
         self.current_results = results
         self.export_button.configure(state="normal")
+        self.calculation_sheet_button.configure(state="normal")
         self._set_status(f"{len(model.point_loads) + len(model.uniform_loads)} loads entered. Assumed self-weight: {'included' if model.include_self_weight else 'excluded'}.", True)
         self.metric_labels["left"].configure(text=f"{results.reactions.left:.2f} kip")
         self.metric_labels["right"].configure(text=f"{results.reactions.right:.2f} kip")
