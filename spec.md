@@ -229,6 +229,52 @@ Allow the user to save and reopen a complete beam design from the local applicat
 - Confirm that opening a saved beam reproduces its calculations and pass/fail states.
 - Test Save and Open cancel actions without changing the current design.
 
+## CSV results export
+
+### Purpose
+Export the calculated beam-result table for use in Excel or another spreadsheet application.
+
+### Export control
+- Add a clearly labeled "Export results" button to the application.
+- The button must open a native file-save dialog.
+- The default filename may use the beam designation or a project name.
+- The exported file must use the `.csv` extension.
+- Canceling the save dialog must leave the current beam and results unchanged.
+
+### Exported table
+- Export one row for each point along the calculated beam grid.
+- Export exactly these column names:
+  - `x`
+  - `V`
+  - `M`
+  - `deflection`
+- Use feet for `x`.
+- Use kips for `V`.
+- Use kip-ft for `M`.
+- Use inches for deflection.
+- Include units in the header or use explicit unit-bearing headers that remain compatible with spreadsheet use.
+- Values must be exported as numeric CSV fields, without labels such as "kip" or "in".
+- Export the latest valid, unrounded calculation values.
+- Use a consistent decimal or significant-digit format without limiting intermediate calculations.
+
+### CSV behavior
+- Use comma separators and CRLF line endings.
+- Include a header row.
+- Encode the file as UTF-8.
+- Quote fields only when needed.
+- Do not include calculated metadata or plotted image data.
+- Export the table only from the currently valid beam state.
+- Disable or hide the export control while beam inputs are invalid.
+
+### Validation and tests
+- Export a CSV for a simply supported beam and verify that `x`, `V`, `M`, and deflection values cover the full span.
+- Export a CSV for a cantilever beam and verify fixed-end and free-end boundary values.
+- Verify that the point-load shear column includes a shear jump while moment remains continuous.
+- Verify that the CSV opens directly in Excel.
+- Verify that the exported grid matches the values used in the current diagrams.
+- Confirm that invalid inputs do not allow a CSV export.
+- Confirm that canceling the save dialog does not modify the beam or results.
+
 ## Out of scope
 - Continuous, overhanging, and indeterminate beams
 - Buckling, shear, torsion, and lateral-torsional stability

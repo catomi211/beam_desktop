@@ -16,6 +16,15 @@
 - What I asked: Add save/open beam design feature requirements to spec.md before implementation, and remove saving from out of scope.
   What changed: Added a save/open section covering JSON `.beam.json` files, beam fields, native menus/dialogs, deflection limits, validation, open-failure behavior, and tests.
   Whether it worked: The specification update was completed; application implementation has not started.
+- What I asked: Add a CSV results-export feature to spec.md before implementation.
+  What changed: Added requirements for an Export results button, native `.csv` save dialog, exact `x`, `V`, `M`, and `deflection` columns, units, numeric formatting, UTF-8/CRLF behavior, valid-state-only export, and validation tests.
+  Whether it worked: The specification update was completed; application implementation has not started.
+- What I asked: Implement CSV results export and rerun all validation cases.
+  What changed: Added csv_export.py, Export results button, native CSV save dialog, valid-state disabling, success/error handling, and CSV header/grid/CRLF tests.
+  Whether it worked: Yes; 16 total tests passed, all 8 beam-validation tests passed, syntax compilation passed, and export button invalid-state behavior passed.
+- What I asked: Commit the CSV results-export implementation.
+  What changed: Preparing to commit the CSV exporter, UI button, specification, tests, and prompt-log updates.
+  Whether it worked: Pending verification.
 
 After-the-fact entries: The following prompts were added after the requests occurred because they had not previously been recorded.
 - What I asked: Create a top-level AGENTS.md containing the required prompts.md instruction.
