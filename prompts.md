@@ -58,6 +58,12 @@
 - What I asked: Commit and push the README change.
   What changed: Preparing to commit README.md and its prompt-log entry, then push main to origin.
   Whether it worked: Yes; commit 6dc5d3f was created and pushed to origin/main.
+- What I asked: Expand README.md with a GitHub-readable explanation of the app's calculations and equations.
+  What changed: Added units and sign conventions, reaction equations, shear and moment formulas, deflection integration and boundary conditions, bending stress, deflection checks, and the calculation workflow.
+  Whether it worked: Yes; the README now contains the expanded calculation documentation.
+- What I asked: Commit and push the expanded README calculation documentation.
+  What changed: Preparing to commit the README and prompt-log update, then push main to origin.
+  Whether it worked: Pending verification.
 
 After-the-fact entries: The following prompts were added after the requests occurred because they had not previously been recorded.
 - What I asked: Create a top-level AGENTS.md containing the required prompts.md instruction.
