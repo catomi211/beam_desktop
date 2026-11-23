@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog, messagebox
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import calculations
 import plotting
+from design_files import BeamFileError, load_beam, save_beam
 from member_data import designations, get_member
 from models import (
     BeamModel,
@@ -42,6 +44,7 @@ class AppView:
         self.uniform_rows: list[dict[str, object]] = []
         self._building_member = False
         self._build_styles()
+        self._build_menu()
         self._build_layout()
         self._load_example()
         self.recalculate()
@@ -67,6 +70,16 @@ class AppView:
         style.configure("MetricBlue.TLabel", background="#dceaf6", foreground=INK, padding=8)
         style.configure("MetricGreen.TLabel", background=GREEN, foreground=INK, padding=8)
         style.configure("MetricPink.TLabel", background="#f4cfe1", foreground=INK, padding=8)
+
+    def _build_menu(self) -> None:
+        menu = tk.Menu(self.root)
+        file_menu = tk.Menu(menu, tearoff=False)
+        file_menu.add_command(label="Open", accelerator="Ctrl+O", command=self.open_beam)
+        file_menu.add_command(label="Save", accelerator="Ctrl+S", command=self.save_beam)
+        menu.add_cascade(label="File", menu=file_menu)
+        self.root.configure(menu=menu)
+        self.root.bind("<Control-o>", lambda _event: self.open_beam())
+        self.root.bind("<Control-s>", lambda _event: self.save_beam())
 
     def _panel(self, parent: tk.Widget, title: str) -> ttk.LabelFrame:
         frame = ttk.LabelFrame(parent, text=title, style="TLabelframe", padding=10)
@@ -187,12 +200,17 @@ class AppView:
         beam.pack(fill="x", pady=(0, 8))
         self.support_var = tk.StringVar(value=SupportType.SIMPLY_SUPPORTED.value)
         self.span_var = tk.StringVar(value="20")
+        self.deflection_limit_var = tk.StringVar(value="")
         ttk.Label(beam, text="Support type").grid(row=0, column=0, sticky="w")
         support = ttk.Combobox(beam, textvariable=self.support_var, values=[item.value for item in SupportType], state="readonly")
         support.grid(row=1, column=0, sticky="ew", pady=(2, 8))
         support.bind("<<ComboboxSelected>>", lambda _: self.recalculate())
         ttk.Label(beam, text="Span (ft)").grid(row=2, column=0, sticky="w")
         ttk.Entry(beam, textvariable=self.span_var).grid(row=3, column=0, sticky="ew")
+        ttk.Label(beam, text="Deflection limit (in), blank for L/360").grid(row=4, column=0, sticky="w")
+        ttk.Entry(beam, textvariable=self.deflection_limit_var).grid(row=5, column=0, sticky="ew")
+        for variable in (self.span_var, self.deflection_limit_var):
+            variable.trace_add("write", lambda *_: self.recalculate())
 
         self.loads_frame = self._panel(parent, "Load inputs")
         self.loads_frame.pack(fill="x", pady=(0, 8))
@@ -239,6 +257,7 @@ class AppView:
             "kind": kind,
             "magnitude": tk.StringVar(value=str(magnitude)),
             "direction": tk.StringVar(value=direction.value),
+            "_row": row,
         }
         if kind == "point":
             variables["position"] = tk.StringVar(value=str(position))
@@ -298,23 +317,99 @@ class AppView:
         except (TypeError, ValueError):
             return None
 
+    def save_beam(self) -> None:
+        model = self._model()
+        errors = validate_model(model)
+        if errors:
+            messagebox.showerror("Cannot save beam", errors[0].message, parent=self.root)
+            return
+        path = filedialog.asksaveasfilename(
+            parent=self.root,
+            title="Save beam design",
+            defaultextension=".beam.json",
+            filetypes=[("Beam design", "*.beam.json"), ("JSON", "*.json"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+        try:
+            save_beam(path, model)
+        except BeamFileError as exc:
+            messagebox.showerror("Save failed", str(exc), parent=self.root)
+            return
+        messagebox.showinfo("Beam saved", "Beam design saved successfully.", parent=self.root)
+
+    def open_beam(self) -> None:
+        path = filedialog.askopenfilename(
+            parent=self.root,
+            title="Open beam design",
+            filetypes=[("Beam design", "*.beam.json"), ("JSON", "*.json"), ("All files", "*.*")],
+        )
+        if not path:
+            return
+        try:
+            model = load_beam(path)
+            errors = validate_model(model)
+            if errors:
+                raise BeamFileError(errors[0].message)
+        except BeamFileError as exc:
+            messagebox.showerror("Open failed", str(exc), parent=self.root)
+            return
+        self._apply_model(model)
+        self.recalculate()
+        messagebox.showinfo("Beam opened", "Beam design opened successfully.", parent=self.root)
+
+    def _clear_loads(self) -> None:
+        for row in self.point_rows:
+            row["_row"].destroy()
+        for row in self.uniform_rows:
+            row["_row"].destroy()
+        self.point_rows.clear()
+        self.uniform_rows.clear()
+
+    def _apply_model(self, model: BeamModel) -> None:
+        self._clear_loads()
+        self.support_var.set(model.support_type.value)
+        self.span_var.set(str(model.span))
+        self.deflection_limit_var.set("" if model.deflection_limit is None else str(model.deflection_limit))
+        self.self_weight_var.set(model.include_self_weight)
+        self.member_type_var.set(model.member.member_type.value)
+        self._member_type_changed()
+        self.designation_var.set(model.member.designation)
+        for load in model.point_loads:
+            self._add_load("point", load.magnitude, load.position, load.direction)
+        for load in model.uniform_loads:
+            self._add_load("uniform", load.magnitude, load.start, load.direction, end=load.end)
+        if not model.point_loads and not model.uniform_loads:
+            self._update_load_count()
+
     def _model(self) -> BeamModel:
         span = self._read_float(self.span_var) or 0.0
+        deflection_text = str(self.deflection_limit_var.get()).strip()
+        deflection_limit = self._read_float(self.deflection_limit_var)
+        if deflection_text and deflection_limit is None:
+            deflection_limit = -1.0
         member_type = MemberType(self.member_type_var.get())
         member = get_member(member_type, self.designation_var.get())
         point_loads = []
         for row in self.point_rows:
             magnitude = self._read_float(row["magnitude"])
             position = self._read_float(row["position"])
-            if magnitude is not None and position is not None:
-                point_loads.append(PointLoad(magnitude, position, LoadDirection(row["direction"].get())))
+            point_loads.append(PointLoad(
+                magnitude if magnitude is not None else 0.0,
+                position if position is not None else -1.0,
+                LoadDirection(row["direction"].get()),
+            ))
         uniform_loads = []
         for row in self.uniform_rows:
             magnitude = self._read_float(row["magnitude"])
             start = self._read_float(row["start"])
             end = self._read_float(row["end"])
-            if magnitude is not None and start is not None and end is not None:
-                uniform_loads.append(UniformLoad(magnitude, start, end, LoadDirection(row["direction"].get())))
+            uniform_loads.append(UniformLoad(
+                magnitude if magnitude is not None else 0.0,
+                start if start is not None else -1.0,
+                end if end is not None else -1.0,
+                LoadDirection(row["direction"].get()),
+            ))
         return BeamModel(
             span,
             SupportType(self.support_var.get()),
@@ -322,6 +417,7 @@ class AppView:
             uniform_loads,
             member,
             self.self_weight_var.get(),
+            deflection_limit,
         )
 
     def _set_status(self, message: str, valid: bool) -> None:

@@ -7,6 +7,8 @@ def validate_model(model: BeamModel) -> list[ValidationError]:
     errors: list[ValidationError] = []
     if model.span <= 0:
         errors.append(ValidationError("span", "Span must be greater than 0 ft."))
+    if model.deflection_limit is not None and model.deflection_limit <= 0:
+        errors.append(ValidationError("deflection_limit", "Deflection limit must be greater than 0 in."))
 
     for index, load in enumerate(model.point_loads):
         prefix = f"point_{index}"

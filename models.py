@@ -56,6 +56,7 @@ class BeamModel:
     uniform_loads: list[UniformLoad] = field(default_factory=list)
     member: Optional[Member] = None
     include_self_weight: bool = False
+    deflection_limit: Optional[float] = None
 
 
 @dataclass(frozen=True)

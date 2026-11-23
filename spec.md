@@ -178,6 +178,57 @@ Deflections use the full beam span and include only the applied loads.
    only: reactions 22.5 k (left) and 7.5 k (right); max moment
    126.6 kip-ft at 11.25 ft.
 
+## Save and open beam designs
+
+### Purpose
+Allow the user to save and reopen a complete beam design from the local application.
+
+### Saved data
+- Beam support type
+- Beam span
+- Selected member type and designation/size
+- Member grade/species and all stored section properties
+- Deflection limit
+- All point loads, including magnitude, position, and direction
+- All uniformly distributed loads, including magnitude, start, end, and direction
+- Beam self-weight selection
+
+### File menu
+- Add a "File" menu to the desktop application.
+- The File menu must contain "Save" and "Open" actions.
+- "Save" must open a native file-save dialog.
+- "Open" must open a native file-open dialog.
+
+### Save behavior
+- Use a plain, versioned JSON file with a `.beam.json` filename.
+- Save only the design inputs and no calculated result values.
+- Use a filename based on the beam when possible.
+- Require a valid beam before saving.
+- Invalid or incomplete designs must not overwrite an existing valid design file.
+- Saving an existing design should use a clear success confirmation.
+
+### Open behavior
+- Open a `.beam.json` file selected through the native file dialog.
+- Restore support type, span, member selection, deflection limit, point loads, uniform loads, and self-weight selection.
+- Reject malformed, unsupported-version, or incompatible files with a clear error message.
+- Do not calculate or display stale values after an open failure.
+- Preserve the existing design when an open operation fails.
+
+### Deflection limit
+- Store the deflection limit in inches.
+- The default deflection limit remains L/360 unless the user provides or opens a different limit.
+- A deflection limit must be greater than zero.
+- Invalid deflection limits must prevent beam results from being calculated or displayed.
+- Display the selected deflection limit in the deflection pass/fail result.
+
+### Validation and tests
+- Save and reopen a valid simply supported beam exactly.
+- Save and reopen a valid cantilever beam exactly.
+- Restore multiple point loads and uniformly distributed loads in their original order.
+- Reject invalid JSON and out-of-range or unsupported design values.
+- Confirm that opening a saved beam reproduces its calculations and pass/fail states.
+- Test Save and Open cancel actions without changing the current design.
+
 ## Out of scope
 - Continuous, overhanging, and indeterminate beams
 - Buckling, shear, torsion, and lateral-torsional stability

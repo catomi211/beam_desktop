@@ -4,6 +4,18 @@
 - What I asked: Check all validation cases and ensure the app still works.
   What changed: Added the W18 x 35 validation member/case, support-boundary and shear/moment tests, corrected asymmetric reactions and cantilever fixed-end slope handling, and reran the UI smoke checks.
   Whether it worked: Yes; all 11 tests, syntax checks, startup, interactive UI transitions, and W18 x 35 output checks passed.
+- What I asked: Run all validation cases in spec.md against the app beam calculations and report expected versus actual values.
+  What changed: Ran all six specification validation cases directly through the calculation engine and recorded no code changes.
+  Whether it worked: Yes; all cases matched the stated reaction, moment, shear, and deflection values within the stated or expected precision.
+- What I asked: Implement save/open beam design support with a File menu, JSON files, and deflection-limit persistence, then rerun the validation cases.
+  What changed: Added deflection-limit state and validation, custom deflection-limit calculation behavior, a versioned `.beam.json` save/load module, native File menu Open/Save actions, model restoration, save/open confirmation and error handling, and round-trip/invalid-file tests.
+  Whether it worked: Yes; 14 total tests passed, 8 beam-validation tests passed, syntax compilation passed, and Tkinter deflection-limit UI transitions passed.
+- What I asked: Commit the save/open implementation.
+  What changed: Preparing to commit the specification, implementation, tests, and prompt-log updates.
+  Whether it worked: Pending verification.
+- What I asked: Add save/open beam design feature requirements to spec.md before implementation, and remove saving from out of scope.
+  What changed: Added a save/open section covering JSON `.beam.json` files, beam fields, native menus/dialogs, deflection limits, validation, open-failure behavior, and tests.
+  Whether it worked: The specification update was completed; application implementation has not started.
 
 After-the-fact entries: The following prompts were added after the requests occurred because they had not previously been recorded.
 - What I asked: Create a top-level AGENTS.md containing the required prompts.md instruction.

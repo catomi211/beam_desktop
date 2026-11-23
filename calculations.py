@@ -126,7 +126,11 @@ def calculate(model: BeamModel, cuts: tuple[float, float] = (5.0, 15.0)) -> Calc
     max_deflection_index = int(np.argmax(np.abs(deflection)))
     maximum_moment = float(moment[max_moment_index])
     stress = abs(maximum_moment * 12) / model.member.section_modulus
-    allowable_deflection = model.span * 12 / 360
+    allowable_deflection = (
+        model.deflection_limit
+        if model.deflection_limit is not None
+        else model.span * 12 / 360
+    )
     bending = CheckResult(
         stress,
         model.member.allowable_bending_stress,
