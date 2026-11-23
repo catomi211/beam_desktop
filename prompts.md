@@ -46,6 +46,12 @@
 - What I asked: Commit the PDF margin and layout changes.
   What changed: Preparing to commit the calculation-sheet implementation, spec updates, tests, and prompt log.
   Whether it worked: Yes; commit 7a39fdf created successfully.
+- What I asked: Rerun all specification validation cases and confirm they still pass.
+  What changed: Ran the complete pytest suite, the beam-validation test file, and six direct specification calculations; no source changes were made.
+  Whether it worked: Yes; 18 total tests passed, 8 beam-validation tests passed, and all six direct spec cases matched their expected reactions, moments, shear values, and deflections.
+- What I asked: Commit the validation rerun record.
+  What changed: Preparing to commit the prompt-log validation entry.
+  Whether it worked: Pending verification.
 
 After-the-fact entries: The following prompts were added after the requests occurred because they had not previously been recorded.
 - What I asked: Create a top-level AGENTS.md containing the required prompts.md instruction.
