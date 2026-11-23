@@ -66,7 +66,7 @@
   Whether it worked: The README format update is complete; no code changed.
 - What I asked: Commit and push the GitHub-readable README equation formatting.
   What changed: Preparing to commit the README and prompt-log update, then push main to origin.
-  Whether it worked: Pending verification.
+  Whether it worked: Yes; commit 8b1491e was created and pushed to origin/main.
 - What I asked: Commit and push the expanded README calculation documentation.
   What changed: Preparing to commit the README and prompt-log update, then push main to origin.
   Whether it worked: Yes; commit 29ee1c9 was created and pushed to origin/main.
