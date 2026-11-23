@@ -27,7 +27,7 @@
   Whether it worked: Yes; 16 tests passed, all 8 beam-validation tests passed, and a fractional-span endpoint check passed.
 - What I asked: Commit the CSV export formatting changes.
   What changed: Preparing to commit the updated exporter, specification, tests, and prompt log.
-  Whether it worked: Pending verification.
+  Whether it worked: Yes; commit eab6451 created successfully.
 - What I asked: Commit the CSV results-export implementation.
   What changed: Preparing to commit the CSV exporter, UI button, specification, tests, and prompt-log updates.
   Whether it worked: Yes; commit be65f92 created successfully with the CSV export implementation.
