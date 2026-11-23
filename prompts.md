@@ -45,7 +45,7 @@
   Whether it worked: Yes; 18 tests passed, 10 PDF/beam-validation tests passed, and both pages use identical letter-size MediaBoxes.
 - What I asked: Commit the PDF margin and layout changes.
   What changed: Preparing to commit the calculation-sheet implementation, spec updates, tests, and prompt log.
-  Whether it worked: Pending verification.
+  Whether it worked: Yes; commit 7a39fdf created successfully.
 
 After-the-fact entries: The following prompts were added after the requests occurred because they had not previously been recorded.
 - What I asked: Create a top-level AGENTS.md containing the required prompts.md instruction.
