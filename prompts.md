@@ -52,6 +52,12 @@
 - What I asked: Commit the validation rerun record.
   What changed: Preparing to commit the prompt-log validation entry.
   Whether it worked: Yes; commit 3ba1f2b created successfully.
+- What I asked: Write a short README.md describing the app, required packages, and start command.
+  What changed: Created README.md with an app overview, pip installation command, and python app.py startup command.
+  Whether it worked: Yes; the README was created.
+- What I asked: Commit and push the README change.
+  What changed: Preparing to commit README.md and its prompt-log entry, then push main to origin.
+  Whether it worked: Pending verification.
 
 After-the-fact entries: The following prompts were added after the requests occurred because they had not previously been recorded.
 - What I asked: Create a top-level AGENTS.md containing the required prompts.md instruction.
