@@ -242,20 +242,22 @@ Export the calculated beam-result table for use in Excel or another spreadsheet 
 - Canceling the save dialog must leave the current beam and results unchanged.
 
 ### Exported table
-- Export one row for each point along the calculated beam grid.
-- Export exactly these column names:
-  - `x`
-  - `V`
-  - `M`
-  - `deflection`
-- Use feet for `x`.
+- Export rows at whole-foot locations along the beam: 0 ft, 1 ft, 2 ft, and so on.
+- Include the full beam span as the final row when the span is not a whole foot.
+- `X` means distance along the beam measured from the left end in feet.
+- Export these column names:
+  - `X (ft)`
+  - `V (kip)`
+  - `M (kip-ft)`
+  - `Deflection (in)`
+- Use feet for `X`.
 - Use kips for `V`.
 - Use kip-ft for `M`.
-- Use inches for deflection.
-- Include units in the header or use explicit unit-bearing headers that remain compatible with spreadsheet use.
-- Values must be exported as numeric CSV fields, without labels such as "kip" or "in".
-- Export the latest valid, unrounded calculation values.
-- Use a consistent decimal or significant-digit format without limiting intermediate calculations.
+- Use inches for `Deflection`.
+- Values must be exported as numeric CSV fields, without unit labels.
+- Format `V`, `M`, and `Deflection` to exactly four decimal places.
+- Format `X` as a whole-number foot location.
+- Interpolate/export the calculated values at each requested whole-foot location.
 
 ### CSV behavior
 - Use comma separators and CRLF line endings.

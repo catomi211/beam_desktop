@@ -27,10 +27,16 @@ def test_csv_exports_exact_headers_and_full_grid(tmp_path):
     with path.open("r", encoding="utf-8", newline="") as csv_file:
         rows = list(csv.reader(csv_file))
 
-    assert rows[0] == ["x", "V", "M", "deflection"]
-    assert len(rows) == len(results.points) + 1
+    assert rows[0] == ["X (ft)", "V (kip)", "M (kip-ft)", "Deflection (in)"]
+    assert len(rows) == 22
     assert float(rows[1][0]) == 0
     assert math.isclose(float(rows[-1][0]), 20, abs_tol=1e-12)
+    assert all(row[0].isdigit() for row in rows[1:])
+    assert all(
+        "." in row[column] and len(row[column].split(".")[1]) == 4
+        for row in rows[1:]
+        for column in (1, 2, 3)
+    )
 
 
 def test_csv_is_crlf_and_contains_numeric_values(tmp_path):
@@ -49,4 +55,4 @@ def test_csv_is_crlf_and_contains_numeric_values(tmp_path):
     assert b"\r\n" in raw
     assert b"\n" not in raw.replace(b"\r\n", b"")
     text = raw.decode("utf-8")
-    assert text.startswith("x,V,M,deflection\r\n")
+    assert text.startswith("X (ft),V (kip),M (kip-ft),Deflection (in)\r\n")

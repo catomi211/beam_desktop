@@ -22,6 +22,12 @@
 - What I asked: Implement CSV results export and rerun all validation cases.
   What changed: Added csv_export.py, Export results button, native CSV save dialog, valid-state disabling, success/error handling, and CSV header/grid/CRLF tests.
   Whether it worked: Yes; 16 total tests passed, all 8 beam-validation tests passed, syntax compilation passed, and export button invalid-state behavior passed.
+- What I asked: Change CSV export to whole-foot X values, unit-explaining capitalized headers, and four-decimal V/M/Deflection formatting.
+  What changed: Updated spec.md and csv_export.py, changed X to distance in feet with whole-foot rows, capitalized headers, added four-decimal formatting, and updated CSV tests.
+  Whether it worked: Yes; 16 tests passed, all 8 beam-validation tests passed, and a fractional-span endpoint check passed.
+- What I asked: Commit the CSV export formatting changes.
+  What changed: Preparing to commit the updated exporter, specification, tests, and prompt log.
+  Whether it worked: Pending verification.
 - What I asked: Commit the CSV results-export implementation.
   What changed: Preparing to commit the CSV exporter, UI button, specification, tests, and prompt-log updates.
   Whether it worked: Yes; commit be65f92 created successfully with the CSV export implementation.
